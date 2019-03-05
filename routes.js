@@ -39,15 +39,15 @@ const authenticateUser = (req, res, next) => {
        // so any middleware functions that follow this middleware function
        // will have access to the user's information.
        req.currentUser = user;
-     } else {
-       message = `Authentication failure for username: ${user.username}`;
-     }
-   } else {
-     message = `User not found for username: ${credentials.name}`;
-   }
- } else {
-   message = 'Auth header not found';
- }
+      } else {
+        message = `Authentication failure for username: ${user.username}`;
+      }
+  } else {
+    message = `User not found for username: ${credentials.name}`;
+  }
+} else {
+  message = 'Auth header not found';
+}
 
  // If user authentication failed...
  if (message) {
@@ -55,7 +55,7 @@ const authenticateUser = (req, res, next) => {
 
    // Return a response with a 401 Unauthorized HTTP status code.
    res.status(401).json({ message: 'Access Denied' });
- } else {
+  } else {
    // Or if user authentication succeeded...
    // Call the next() method.
     next();
