@@ -109,4 +109,45 @@ router.post('/users', [
   return res.status(201).end();
 });
 
+// Route for getting all courses
+router.get('/courses', function(req, res){
+  res.json({
+    response: "You sent me a POST request",
+  });
+});
+
+// Route for creating course
+router.post('/courses', function(req, res){
+  res.json({
+    response: "You sent me a POST request",
+    body: req.body
+  });
+});
+
+// Route for getting a specific course
+router.get('/courses/:id', function(req, res){
+  res.json({
+    response: "You sent me a GET request",
+    courseId: req.params.id,
+  });
+});
+
+// Route for editting a course
+router.put('/courses/:id', function(req, res){
+  res.json({
+    response: "You sent me a PUT request",
+    courseId: req.params.id,
+    body: req.body
+  });
+});
+
+// Route for deleting a course
+router.delete('/courses/:id', function(req, res){
+  res.json({
+    response: "You sent me a DELETE request",
+    courseId: req.params.id,
+    body: req.body
+  });
+});
+
 module.exports = router;

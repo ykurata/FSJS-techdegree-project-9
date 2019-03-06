@@ -18,9 +18,10 @@ app.use(express.json());
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+// Set up mongoose connection
 var mongoose = require('mongoose');
 
-mongoose.connect("mongodb://localhost:27017/courses");
+mongoose.connect("mongodb://localhost:27017/fsjstd-restapi");
 
 var db = mongoose.connection;
 
@@ -41,7 +42,7 @@ app.get('/', (req, res) => {
 
 
 // TODO setup your api routes here
-app.use('/courses', routes);
+app.use('/api', routes);
 
 // send 404 if no other route matched
 app.use((req, res) => {
