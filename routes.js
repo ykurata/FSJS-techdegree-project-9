@@ -113,6 +113,20 @@ router.post('/users', [
 });
 
 
+// Parameter handler for course 'id'
+// router.param('id', function(req, res, next, id){
+//   Course.findById(id, function(err, doc){
+//     if (err) return next(err);
+//     if (!doc) {
+//       err = new Error("Not Found");
+//       err.status = 404;
+//       return next(err);
+//     }
+//     req.course = doc;
+//     return next();
+//   });
+// });
+
 
 // Route for listing all courses
 router.get('/courses', function(req, res, next){
@@ -134,6 +148,7 @@ router.post('/courses', function(req, res, next){
 
 // Route for getting a specific course
 router.get('/courses/:id', function(req, res, next){
+  // res.json(req.course);
   Course.findById(req.params.id, function(err, course){
     if (err) return next(err);
     res.json(course);
@@ -142,19 +157,28 @@ router.get('/courses/:id', function(req, res, next){
 
 // Route for editting a specific course
 router.put('/courses/:id', function(req, res){
-  res.json({
-    response: "You sent me a PUT request",
-    courseId: req.params.id,
-    body: req.body
+  Course.findById(req.params.id, function(err, course){
+    if (err) return next(err);
+    course.title = req.body.title;
+    course.description = req.body.description;
+    course.estimatedTime = req.body.estimatedTime;
+    course.materialsNeeded = req.body.materialsNeeded;
+    course.save(function(err){
+      if (err) return next(err);
+      res.json(course);
+    });
   });
+  // req.course.update(req.body, function(err, result){
+  //   if (err) return next(err);
+  //   res.json(result);
+  // });
 });
 
 // Route for deleting a specific course
 router.delete('/courses/:id', function(req, res){
-  res.json({
-    response: "You sent me a DELETE request",
-    courseId: req.params.id,
-    body: req.body
+  Course.remove({ _id: req.params.id}, function(err, course) {
+    if (err) return next(err);
+    res.json({ message: "Successfully deleted"});
   });
 });
 
