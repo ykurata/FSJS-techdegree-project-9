@@ -133,10 +133,10 @@ router.post('/courses', function(req, res, next){
 });
 
 // Route for getting a specific course
-router.get('/courses/:id', function(req, res){
-  res.json({
-    response: "You sent me a GET request",
-    courseId: req.params.id,
+router.get('/courses/:id', function(req, res, next){
+  Course.findById(req.params.id, function(err, course){
+    if (err) return next(err);
+    res.json(course);
   });
 });
 
