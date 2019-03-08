@@ -3,7 +3,7 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-const jsonParser = require('body-parser').json;
+const bodyParser = require('body-parser');
 const routes = require('./routes');
 
 // variable to enable global error logging
@@ -11,6 +11,10 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 
 // create the Express app
 const app = express();
+
+// configure bodyParser to handle post request
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Setup request body JSON parsing
 app.use(express.json());

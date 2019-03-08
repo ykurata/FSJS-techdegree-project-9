@@ -4,10 +4,13 @@ const auth = require('basic-auth');
 const bcryptjs = require('bcryptjs');
 const express = require('express');
 const { check, validationResult } = require('express-validator/check');
+// Import course model
+const Course = require('./models');
 
 // Array to keep track of user records as they are created
 const users = [];
 
+// Initialize express router
 const router = express.Router();
 
 const authenticateUser = (req, res, next) => {
@@ -109,18 +112,23 @@ router.post('/users', [
   return res.status(201).end();
 });
 
-// Route for getting all courses
-router.get('/courses', function(req, res){
-  res.json({
-    response: "You sent me a POST request",
+
+
+// Route for listing all courses
+router.get('/courses', function(req, res, next){
+  Course.find(function(err, courses){
+    if (err) return next(err);
+    res.json(courses);
   });
 });
 
-// Route for creating course
-router.post('/courses', function(req, res){
-  res.json({
-    response: "You sent me a POST request",
-    body: req.body
+// Route for creating new courses
+router.post('/courses', function(req, res, next){
+  var course = new Course(req.body);
+  course.save(function(err){
+    if (err) return next(err);
+    res.status(201);
+    res.json(course);
   });
 });
 
@@ -132,7 +140,7 @@ router.get('/courses/:id', function(req, res){
   });
 });
 
-// Route for editting a course
+// Route for editting a specific course
 router.put('/courses/:id', function(req, res){
   res.json({
     response: "You sent me a PUT request",
@@ -141,7 +149,7 @@ router.put('/courses/:id', function(req, res){
   });
 });
 
-// Route for deleting a course
+// Route for deleting a specific course
 router.delete('/courses/:id', function(req, res){
   res.json({
     response: "You sent me a DELETE request",
