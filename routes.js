@@ -5,7 +5,8 @@ const bcryptjs = require('bcryptjs');
 const express = require('express');
 const { check, validationResult } = require('express-validator/check');
 // Import course model
-const Course = require('./models');
+const Course = require('./models').Course;
+const User = require('./models').User;
 
 // Array to keep track of user records as they are created
 const users = [];
@@ -14,102 +15,123 @@ const users = [];
 const router = express.Router();
 
 const authenticateUser = (req, res, next) => {
-  let message = null;
-
-  // Parse the user's credentials from the Authorization header.
   const credentials = auth(req);
 
-  // If the user's credentials are available...
   if (credentials) {
-    // Attempt to retrieve the user from the data store
-    // by their username (i.e. the user's "key"
-    // from the Authorization header).
-    const user = users.find(u => u.username === credentials.name);
+    User.findOne({ emailAddress: credentials.name }, function(err, user){
+      if (err) return next(err);
 
-    // If a user was successfully retrieved from the data store...
-    if (user) {
-      // Use the bcryptjs npm package to compare the user's password
-      // (from the Authorization header) to the user's password
-      // that was retrieved from the data store.
-      const authenticated = bcryptjs
-        .compareSync(credentials.pass, user.password);
+      if (user) {
+        const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
 
-      // If the passwords match...
-      if (authenticated) {
-       console.log(`Authentication successful for username: ${user.username}`);
-
-       // Then store the retrieved user object on the request object
-       // so any middleware functions that follow this middleware function
-       // will have access to the user's information.
-       req.currentUser = user;
+        if (authenticated) {
+          console.log(`Authentication successful for email address: ${user.emailAddress}`);
+          req.currentUser = user;
+          next();
+        } else {
+          res.json({ message: `Authentication failure for email address: ${user.emailAddress}` });
+        }
       } else {
-        message = `Authentication failure for username: ${user.username}`;
+        res.json({ message: `User not found for email address: ${credentials.name}` });
       }
+    });
   } else {
-    message = `User not found for username: ${credentials.name}`;
+    res.json({ message: 'Auth header not found' });
   }
-} else {
-  message = 'Auth header not found';
 }
 
- // If user authentication failed...
- if (message) {
-   console.warn(message);
 
-   // Return a response with a 401 Unauthorized HTTP status code.
-   res.status(401).json({ message: 'Access Denied' });
-  } else {
-   // Or if user authentication succeeded...
-   // Call the next() method.
-    next();
-  }
-};
+//   let message = null;
+//
+//   // Parse the user's credentials from the Authorization header.
+//   const credentials = auth(req);
+//
+//   // If the user's credentials are available...
+//   if (credentials) {
+//     // Attempt to retrieve the user from the data store
+//     // by their email address(i.e. the user's "key"
+//     // from the Authorization header).
+//     const user = users.find(u => u.emailAddress === credentials.emailAddress);
+//
+//     // If a user was successfully retrieved from the data store...
+//     if (user) {
+//       // Use the bcryptjs npm package to compare the user's password
+//       // (from the Authorization header) to the user's password
+//       // that was retrieved from the data store.
+//       const authenticated = bcryptjs
+//         .compareSync(credentials.pass, user.password);
+//
+//       // If the passwords match...
+//       if (authenticated) {
+//        console.log(`Authentication successful for email address: ${user.emailAddress}`);
+//
+//        // Then store the retrieved user object on the request object
+//        // so any middleware functions that follow this middleware function
+//        // will have access to the user's information.
+//        req.currentUser = user;
+//       } else {
+//         message = `Authentication failure for email address: ${user.emailAddress}`;
+//       }
+//   } else {
+//     message = `User not found for email address: ${credentials.emailAddress}`;
+//   }
+// } else {
+//   message = 'Auth header not found';
+// }
+//
+//  // If user authentication failed...
+// if (message) {
+//    console.warn(message);
+//
+//    // Return a response with a 401 Unauthorized HTTP status code.
+//    res.status(401).json({ message: 'Access Denied' });
+//   } else {
+//    // Or if user authentication succeeded...
+//    // Call the next() method.
+//     next();
+//   }
+// };
 
 // Route that returns the current authenticated user
-router.get('/users', authenticateUser, (req, res) => {
-  const user = req.currentUser;
-
-  res.json({
-    name: user.name,
-    username: user.username,
+router.get('/users', authenticateUser,(req, res) => {
+  User.find(function(err, user){
+    if (err) return next(err);
+    res.json(req.currentUser);
   });
 });
 
 // Route that creates a new user.
-router.post('/users', [
-  check('name')
-    .exists({ checkNull: true, checkFalsy: true })
-    .withMessage('Please provide a value for "name"'),
-  check('username')
-    .exists({ checkNull: true, checkFalsy: true })
-    .withMessage('Please provide a value for "username"'),
-  check('password')
-    .exists({ checkNull: true, checkFalsy: true })
-    .withMessage('Please provide a value for "password"'),
-], (req, res) => {
-  // Attempt to get the validation result from the Request object.
-  const errors = validationResult(req);
-
-  // If there are validation errors...
-  if (!errors.isEmpty()) {
-    // Use the Array `map()` method to get a list of error messages.
-    const errorMessages = errors.array().map(error => error.msg);
-
-    // Return the validation errors to the client.
-    return res.status(400).json({ errors: errorMessages });
-  }
-
-  // Get the user from the request body.
-  const user = req.body;
-
-  // Hash the new user's password.
-  user.password = bcryptjs.hashSync(user.password);
-
-  // Add the user to the `users` array.
-  users.push(user);
-
-  // Set the status to 201 Created and end the response.
-  return res.status(201).end();
+router.post('/users', function(req, res, next){
+  const user = new User();
+  user.firstName = req.body.firstName;
+  user.lastName = req.body.lastName;
+  user.emailAddress = req.body.emailAddress;
+  user.password = bcryptjs.hashSync(req.body.password);
+  user.save(function(err){
+    if (err) return next(err);
+    res.status = 201;
+    res.json(user);
+  });
+  // // If there are validation errors...
+  // if (!errors.isEmpty()) {
+  //   // Use the Array `map()` method to get a list of error messages.
+  //   const errorMessages = errors.array().map(error => error.msg);
+  //
+  //   // Return the validation errors to the client.
+  //   return res.status(400).json({ errors: errorMessages });
+  // }
+  //
+  // // Get the user from the request body.
+  // const user = req.body;
+  //
+  // // Hash the new user's password.
+  // user.password = bcryptjs.hashSync(user.password);
+  //
+  // // Add the user to the `users` array.
+  // //users.push(user);
+  //
+  // // Set the status to 201 Created and end the response.
+  // return res.status(201).end();
 });
 
 
@@ -138,7 +160,7 @@ router.get('/courses', function(req, res, next){
 
 // Route for creating new courses
 router.post('/courses', function(req, res, next){
-  var course = new Course(req.body);
+  const course = new Course(req.body);
   course.save(function(err){
     if (err) return next(err);
     res.status(201);
@@ -156,7 +178,7 @@ router.get('/courses/:id', function(req, res, next){
 });
 
 // Route for editting a specific course
-router.put('/courses/:id', function(req, res){
+router.put('/courses/:id', authenticateUser, function(req, res){
   Course.findById(req.params.id, function(err, course){
     if (err) return next(err);
     course.title = req.body.title;
@@ -175,7 +197,7 @@ router.put('/courses/:id', function(req, res){
 });
 
 // Route for deleting a specific course
-router.delete('/courses/:id', function(req, res){
+router.delete('/courses/:id', authenticateUser, function(req, res){
   Course.remove({ _id: req.params.id}, function(err, course) {
     if (err) return next(err);
     res.json({ message: "Successfully deleted"});

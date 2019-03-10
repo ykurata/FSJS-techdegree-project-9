@@ -1,17 +1,17 @@
 'use strict';
 
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var UserSchema = new Schema({
+const UserSchema = new Schema({
   firstName: {type: String, required: true},
   lastName: {type: String, required: true},
-  emailAddress: {type: String, required: true},
+  emailAddress: {type: String, required: true, unique: true},
   password: {type: String, required: true},
 });
 
-var CourseSchema = new Schema({
+const CourseSchema = new Schema({
   user: [UserSchema],
   title: {type: String, required: true},
   description: {type: String, required: true},
@@ -20,8 +20,16 @@ var CourseSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('Course', CourseSchema);
-// var Course = mongoose.model("Course", CourseSchema);
+// module.exports = mongoose.model('Course', CourseSchema);
+//
+// module.exports = mongoose.model('User', UserSchema);
+
+const Course = mongoose.model("Course", CourseSchema);
+const User = mongoose.model("User", UserSchema);
+
+module.exports = {
+  Course, User
+}
 //
 // // Expoer Course model
 // module.exports.Course = Course;
