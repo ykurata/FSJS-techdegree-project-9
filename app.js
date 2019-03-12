@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 });
 
 
-// TODO setup your api routes here
+// setup api routes 
 app.use('/api', routes);
 
 // send 404 if no other route matched
