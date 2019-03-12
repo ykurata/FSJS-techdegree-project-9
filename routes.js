@@ -4,7 +4,7 @@ const auth = require('basic-auth');
 const bcryptjs = require('bcryptjs');
 const express = require('express');
 const { check, validationResult } = require('express-validator/check');
-// Import course model
+// Import course, User models
 const Course = require('./models').Course;
 const User = require('./models').User;
 
@@ -78,6 +78,7 @@ router.get('/courses', function(req, res, next){
   });
 });
 
+
 // Route for creating a new course
 router.post('/courses', authenticateUser, function(req, res, next){
   const course = new Course();
@@ -99,6 +100,7 @@ router.post('/courses', authenticateUser, function(req, res, next){
   }
 });
 
+
 // Route for getting a specific course
 router.get('/courses/:id', function(req, res, next){
   Course.findById(req.params.id, function(err, course){
@@ -106,6 +108,7 @@ router.get('/courses/:id', function(req, res, next){
     res.json(course);
   });
 });
+
 
 // Route for editting a specific course
 router.put('/courses/:id', authenticateUser, function(req, res, next){
@@ -121,6 +124,7 @@ router.put('/courses/:id', authenticateUser, function(req, res, next){
     });
   });
 });
+
 
 // Route for deleting a specific course
 router.delete('/courses/:id', authenticateUser, function(req, res, next){
