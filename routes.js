@@ -129,8 +129,8 @@ router.put('/courses/:id', authenticateUser, function(req, res, next){
     course.materialsNeeded = req.body.materialsNeeded;
     course.save(req.body, function(err){
       if (err) return next(err);
-      //res.status(204);
-      res.json(course);
+      res.status(204);
+      //res.json(course);
     });
   });
 });
@@ -140,7 +140,7 @@ router.put('/courses/:id', authenticateUser, function(req, res, next){
 router.delete('/courses/:id', authenticateUser, function(req, res, next){
   Course.remove({ _id: req.params.id}, function(err, course) {
     if (err) return next(err);
-    //res.status(204);
+    res.status(204);
     res.json({ message: "Successfully deleted."})
   });
 });
