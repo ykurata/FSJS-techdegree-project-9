@@ -67,8 +67,8 @@ router.post('/users', function(req, res, next){
     user.password = bcryptjs.hashSync(req.body.password);
     user.save(function(err, user){
       if (err) return next(err);
-      res.status(201);
-      res.json(user);
+      res.location('/');
+      res.send(201);
     });
   } else {
     const err = new Error("firstName, lastName, emailAddress, and password are required.");
@@ -99,8 +99,8 @@ router.post('/courses', authenticateUser, function(req, res, next){
   if (course.title && course.description) {
     course.save(function(err, course){
       if (err) return next(err);
-      res.status(201);
-      res.json(course);
+      res.location('/courses/' + course._id);
+      res.send(201);
     });
   } else {
     const err = new Error("Title and description are required.");
@@ -129,8 +129,7 @@ router.put('/courses/:id', authenticateUser, function(req, res, next){
     course.materialsNeeded = req.body.materialsNeeded;
     course.save(req.body, function(err){
       if (err) return next(err);
-      res.status(204);
-      //res.json(course);
+      res.send(204);
     });
   });
 });
