@@ -139,8 +139,7 @@ router.put('/courses/:id', authenticateUser, function(req, res, next){
 router.delete('/courses/:id', authenticateUser, function(req, res, next){
   Course.remove({ _id: req.params.id}, function(err, course) {
     if (err) return next(err);
-    res.status(204);
-    res.json({ message: "Successfully deleted."})
+    res.send(204);
   });
 });
 
