@@ -61,14 +61,14 @@ To test the Express server, browse to the URL [http://localhost:5000/](http://lo
 * Create your Mongoose schema and models
   * Your database schema should match the following requirements:
   * User
-    * id (ObjectId, auto-generated)
+    * _id (ObjectId, auto-generated)
     * firstName (String)
     * lastName (String)
     * emailAddress (String)
     * password (String)
 
   * Course
-    * id (ObjectId, auto-generated)
+    * _id (ObjectId, auto-generated)
     * user (id from the users collection)
     * title (String)
     * description (String)
